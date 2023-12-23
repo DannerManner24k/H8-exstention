@@ -143,6 +143,10 @@
     background-color: #1B7CFF; 
 }
 
+.liked:hover {
+    background-color: #1B7CFF;
+}
+
 .not-liked {
     background-color: #1f2937;
 }

@@ -75,3 +75,52 @@ function deleteComment(event, formId) {
         }
     });
 }
+
+// AJAX call for liking a post
+document.addEventListener('DOMContentLoaded', function() {
+    const likeButtons = document.querySelectorAll('.like-button');
+
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            const subpageSlug = this.getAttribute('data-subpage-slug');
+            const postSlug = this.getAttribute('data-post-slug');
+            toggleLike(postId, subpageSlug, postSlug, this);
+        });
+    });
+});
+
+
+function toggleLike(postId, subpageSlug, postSlug, buttonElement) {
+    fetch(`/subpage/${subpageSlug}/post/${postSlug}/toggle-like`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ postId: postId })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        buttonElement.textContent = `${data.likesCount} Like`;
+
+        if (buttonElement.classList.contains('liked')) {
+            // If it does, remove 'liked' and add 'not-liked'
+            buttonElement.classList.remove('liked');
+            buttonElement.classList.add('not-liked');
+        } else {
+            // If it doesn't, add 'liked' and remove 'not-liked'
+            buttonElement.classList.add('liked');
+            buttonElement.classList.remove('not-liked');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+

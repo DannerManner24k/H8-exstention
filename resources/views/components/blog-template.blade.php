@@ -25,12 +25,13 @@
     
     <div class="b-2">
         <!-- 'slug' is the one in the route and gets its value from '$subpage_slug '. The '$subpage_slug' value is being transfered from the parrent blade via the props at the top. -->
-        <form method="POST" action="{{ route('posts.like.toggle', ['slug' => $subpage_slug, 'postSlug' => $post_slug]) }}"> 
-            @csrf
-            <x-secondary-button type="submit" class="button-space {{ $post->isLikedByUser(Auth::user()) ? 'liked' : 'not-liked' }}">
-                {{ $post->likes->count() }} {{ __('Like') }}
-            </x-secondary-button>
-        </form>
+        <x-secondary-button type="button" 
+                class="like-button button-space {{ $post->isLikedByUser(Auth::user()) ? 'liked' : 'not-liked' }}"
+                data-post-id="{{ $post->id }}"
+                data-subpage-slug="{{ $subpage_slug }}"
+                data-post-slug="{{ $post_slug }}">
+            {{ $post->likes->count() }} {{ __('Like') }}
+        </x-secondary-button>
 
 
         <!-- Show/Hide Comment Section -->

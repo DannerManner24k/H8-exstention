@@ -50,14 +50,13 @@ class PostController extends Controller
 
     public function toggleLike($slug, $post_slug)
     {
-        // First, get the correct subpage using its slug
-        // - this is necessary because the post_slug only is unique for the subpage
+        // Get the correct subpage using its slug
         $subpage = Subpage::where('slug', $slug)->firstOrFail();
 
-        // Then, get the post by its slug and make sure it belongs to the correct subpage
+        // Get the post by its slug and make sure it belongs to the correct subpage
         $post = Post::where('slug', $post_slug)->where('subpage_id', $subpage->id)->firstOrFail();
 
-        // Now toggle the like for the correct post
+        // Toggle the like for the correct post
         $like = $post->likes()->where('user_id', auth()->id())->first();
 
         if ($like) {
@@ -66,8 +65,15 @@ class PostController extends Controller
             $post->likes()->create(['user_id' => auth()->id()]);
         }
 
-        return back();
+        // Calculate the updated likes count
+        $updatedLikesCount = $post->likes()->count();
+
+        // Return the updated likes count as JSON
+        return response()->json([
+            'likesCount' => $updatedLikesCount
+        ]);
     }
+
 
     
     public function destroy($slug, $postSlug)
