@@ -40,7 +40,7 @@
         </x-secondary-button>
 
         <x-secondary-button class="button-space" type="button">
-            {{ __('Share') }} <!-- Placeholder for share functionality -->
+            {{ __('Share') }}
         </x-secondary-button>
 
         
@@ -62,13 +62,14 @@
     <!-- Hidden Comment Section -->
     <div id="comment-section-{{ $post->id }}" class="comment-section" style="display: none;">
         <!-- 'slug' is the one in the route and gets its value from '$subpage_slug '. The '$subpage_slug' value is being transfered from the parrent blade via the props at the top. -->
-       <form method="POST" action="{{ route('posts.comments.store', ['slug' => $subpage_slug, 'postSlug' => $post_slug]) }}">
-           @csrf
-           <x-textarea-input name="content" class="block mt-1 w-full" rows="3" placeholder="Write a comment..."></x-textarea-input>
-           <x-primary-button class="ms-3" type="submit">
-               {{ __('Post Comment') }}
-           </x-primary-button>
-       </form>
+        <form id="comment-form-{{ $post->id }}" action="{{ route('posts.comments.store', ['slug' => $subpage_slug, 'postSlug' => $post_slug]) }}">
+            @csrf
+            <x-textarea-input name="content" class="block mt-1 w-full" rows="3" placeholder="Write a comment..."></x-textarea-input>
+            <x-primary-button class="ms-3 post-comment-btn" type="button">
+                {{ __('Post Comment') }}
+            </x-primary-button>
+        </form>
+        
        @foreach($post->comments as $comment)
        <x-comment-template 
            :profileName='$comment->user->name'

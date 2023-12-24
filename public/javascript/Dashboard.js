@@ -3,7 +3,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let blogCommentButtons = document.querySelectorAll('.blog-comment-btn');
     let deletePostButtons = document.querySelectorAll('.delete-post-btn');
     let deleteCommentButtons = document.querySelectorAll('.delete-comment-btn');
+
     const likeButtons = document.querySelectorAll('.like-button');
+    const commentButtons = document.querySelectorAll('.post-comment-btn');
 
     blogCommentButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -32,6 +34,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
             const subpageSlug = this.getAttribute('data-subpage-slug');
             const postSlug = this.getAttribute('data-post-slug');
             toggleLike(postId, subpageSlug, postSlug, this);
+        });
+    });
+
+    
+
+    commentButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const form = this.closest('form');
+            postComment(form);
         });
     });
 });
@@ -120,3 +131,34 @@ function toggleLike(postId, subpageSlug, postSlug, buttonElement) {
     });
 }
 
+//AJAX call for posting a comment
+function postComment(form) {
+    const formData = new FormData(form);
+    const url = form.getAttribute('action');
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            // Clear the form input
+            form.querySelector('textarea[name="content"]').value = '';
+    
+            const commentSection = document.querySelector('.comment-section');
+            commentSection.insertAdjacentHTML('beforeend', data.commentHtml);
+            }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}

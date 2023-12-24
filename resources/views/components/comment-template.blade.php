@@ -25,6 +25,5 @@
                 </x-danger-button>
             </form>
         @endif
-
     </div>
 </div>

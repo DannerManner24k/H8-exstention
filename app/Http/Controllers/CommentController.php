@@ -29,8 +29,21 @@ class CommentController extends Controller
         $comment->user_id = Auth::id();
         $comment->post_id = $post->id;
         $comment->save();
+
+        $commentHtml = view('components.comment-template', [
+            'profileName' => Auth::user()->name,
+            'content' => $comment->content,
+            'createdAt' => $comment->created_at->diffForHumans(),
+            'comment' => $comment
+        ])->render();
+        
+        $response = [
+            'status' => 'success',
+            'message' => 'Comment posted successfully!',
+            'commentHtml' => $commentHtml 
+        ];
     
-        return back()->with('status', 'Comment posted successfully!');
+        return response()->json($response);
     }
 
 
