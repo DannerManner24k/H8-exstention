@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let blogCommentButtons = document.querySelectorAll('.blog-comment-btn');
     let deletePostButtons = document.querySelectorAll('.delete-post-btn');
     let deleteCommentButtons = document.querySelectorAll('.delete-comment-btn');
+    const likeButtons = document.querySelectorAll('.like-button');
 
     blogCommentButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -22,6 +23,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
         button.addEventListener('click', function() {
             let formId = this.getAttribute('data-form-id');
             deleteComment(event, formId);
+        });
+    });
+
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            const subpageSlug = this.getAttribute('data-subpage-slug');
+            const postSlug = this.getAttribute('data-post-slug');
+            toggleLike(postId, subpageSlug, postSlug, this);
         });
     });
 });
@@ -77,20 +87,6 @@ function deleteComment(event, formId) {
 }
 
 // AJAX call for liking a post
-document.addEventListener('DOMContentLoaded', function() {
-    const likeButtons = document.querySelectorAll('.like-button');
-
-    likeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const postId = this.getAttribute('data-post-id');
-            const subpageSlug = this.getAttribute('data-subpage-slug');
-            const postSlug = this.getAttribute('data-post-slug');
-            toggleLike(postId, subpageSlug, postSlug, this);
-        });
-    });
-});
-
-
 function toggleLike(postId, subpageSlug, postSlug, buttonElement) {
     fetch(`/subpage/${subpageSlug}/post/${postSlug}/toggle-like`, {
         method: 'POST',
