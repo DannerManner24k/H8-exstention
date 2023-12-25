@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let deletePostButtons = document.querySelectorAll('.delete-post-btn');
     //let deleteCommentButtons = document.querySelectorAll('.delete-comment-btn');
 
+    const createPostButton = document.querySelectorAll('.create-post-btn');
     const likeButtons = document.querySelectorAll('.like-button');
     const commentButtons = document.querySelectorAll('.post-comment-btn');
     const likeCommentButtons = document.querySelectorAll('.like-comment-button');
@@ -29,6 +30,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
             deleteComment(event, formId);
         });
     });*/
+    createPostButton.forEach(button => {
+         button.addEventListener('click', function() {
+            const form = this.closest('form');
+            createPost(form);
+        });
+    })
+   
 
     likeButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -63,6 +71,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
 
 });
+
 
 // Toggle comment section
 function toggleCommentSection(postId) {
@@ -108,6 +117,42 @@ function deleteCommentAlert(commentId, buttonElement) {
         if (result.isConfirmed) {
             deleteComment(commentId, buttonElement);
         }
+    });
+}
+
+// AJAX call for creating a post
+function createPost(form) {
+    const formData = new FormData(form);
+    const url = form.getAttribute('action');
+    console.log("URL for AJAX request:", url);
+
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            // Clear the form input
+            form.querySelector('input[name="title"]').value = '';
+            form.querySelector('textarea[name="content"]').value = '';
+
+            // Append the new post HTML to the posts section
+            const postsSection = document.querySelector('.posts-section'); // Adjust the selector as needed
+            postsSection.insertAdjacentHTML('afterbegin', data.postHtml);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
     });
 }
 

@@ -38,17 +38,14 @@
         <div class="w">
             <!-- This div will show/hide based on the Alpine.js state -->
             <div class="w" x-show="showCreatePostForm" x-cloak>
-                <form method="POST" action="{{ route('subpages.posts.store', $subpage) }}" class="mt-4">
+                <form action="{{ route('subpages.posts.store', $subpage) }}" class="mt-4">
                 @csrf
                     <div>
-                        @csrf <!-- CSRF token for security -->
                         <h2 class="p-1"> Create a H8 post </h2>
-                        <div class="form-title w">
-                            <x-text-input id="title" class="block mt-1 w" style="width: 100%" type="text" name="title" placeholder="Title" required autofocus required class="form-control" />
-                        </div>
                         <div class="content-text">
+                            <x-text-input id="title" class="block mt-1 w" style="width: 100%" type="text" name="title" placeholder="Title" required autofocus required class="form-control" />
                             <x-textarea-input id="content" class="block mt-1 w-1" style="resize: none;" name="content" placeholder="Write your blog post here..." rows="4" required required class="form-control"></x-textarea-input>
-                            <x-primary-button class="ms-3" type="submit">
+                            <x-primary-button class="ms-3 create-post-btn" type="button">
                                 {{ __('Post') }}
                             </x-primary-button>
                         </div>
@@ -61,9 +58,9 @@
     
 
     
-    <div">
+    <div>
         <!-- Posts Section -->
-        <div class="py-12">
+        <div class="py-12 posts-section">
             @forelse ($subpage->posts as $post)
             <!-- Passing values into the child-template -->
             <x-blog-template

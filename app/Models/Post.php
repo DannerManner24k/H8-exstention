@@ -19,6 +19,11 @@ class Post extends Model
         'user_id', // Make sure this is the name of the foreign key column for the user.
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        // other casts...
+    ];
+
     /**
      * The user who authored the post.
      */

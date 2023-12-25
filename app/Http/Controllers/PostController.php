@@ -8,6 +8,10 @@ use App\Models\Subpage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Like;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+
+
 
 
 class PostController extends Controller
@@ -18,34 +22,56 @@ class PostController extends Controller
          return view('posts.create', compact('subpage'));
      }
  
-    public function store(Request $request, $slug)
-    {
-        $subpage = Subpage::where('slug', $slug)->firstOrFail();
-
-        $request->validate([
-            'title' => 'required|max:255',
-            'content' => 'required',
-        ]);
-
-        $postSlug = Str::slug($request->title);
-
-        // Ensure uniqueness of the post slug within the subpage
-        $postSlugCount = Post::where('subpage_id', $subpage->id)
-                             ->where('slug', 'LIKE', $postSlug . '%')
-                             ->count();
-
-
-        $post = new Post();
-        $post->title = $request->title;
-        $post->content = $request->content;
-        $post->user_id = Auth::id();
-        $post->subpage_id = $subpage->id;
-        $post->slug = $postSlugCount > 0 ? "{$postSlug}-{$postSlugCount}" : $postSlug;
-
-        $post->save();
-
-        return redirect()->route('subpages.showSubpage', $subpage->slug);
-    }
+     public function store(Request $request, $slug)
+     {
+         $subpage = Subpage::where('slug', $slug)->firstOrFail();
+     
+         $request->validate([
+             'title' => 'required|max:255',
+             'content' => 'required',
+         ]);
+     
+         $postSlug = Str::slug($request->title);
+     
+         // Ensure uniqueness of the post slug within the subpage
+         $postSlugCount = Post::where('subpage_id', $subpage->id)
+                              ->where('slug', 'LIKE', $postSlug . '%')
+                              ->count();
+     
+         $post = new Post();
+         $post->title = $request->title;
+         $post->content = $request->content;
+         $post->user_id = Auth::id();
+         $post->subpage_id = $subpage->id;
+         $post->slug = $postSlugCount > 0 ? "{$postSlug}-{$postSlugCount}" : $postSlug;
+     
+         $post->save();
+     
+         // Convert created_at to a Carbon instance and then to a human-readable format
+         $createdAtHumanReadable = Carbon::parse($post->created_at)->diffForHumans();
+     
+         $postHtml = view('components.blog-template', [
+                'profileName' => Auth::user()->name,
+                'title' => $post->title,
+                'content' => $post->content,
+                'createdAt' => $createdAtHumanReadable,
+                'post' => $post,
+                'showSubpageName' => true, 
+                'subpageName' => $post->subpage->name,
+                'subpage_slug' => $post->subpage->slug,
+                'post_slug' => $post->slug
+            ])->render();
+     
+         // Return a JSON response with the rendered HTML
+         $response = [
+             'status' => 'success',
+             'message' => 'Post created successfully.',
+             'postHtml' => $postHtml
+         ];
+     
+         return response()->json($response);
+     }
+     
 
 
     public function toggleLike($slug, $post_slug)
