@@ -1,11 +1,13 @@
-// Toggle comment section in a post
 document.addEventListener('DOMContentLoaded', (event) => {
     let blogCommentButtons = document.querySelectorAll('.blog-comment-btn');
     let deletePostButtons = document.querySelectorAll('.delete-post-btn');
-    let deleteCommentButtons = document.querySelectorAll('.delete-comment-btn');
+    //let deleteCommentButtons = document.querySelectorAll('.delete-comment-btn');
 
     const likeButtons = document.querySelectorAll('.like-button');
     const commentButtons = document.querySelectorAll('.post-comment-btn');
+    const likeCommentButtons = document.querySelectorAll('.like-comment-button');
+    const deleteCommentButtons = document.querySelectorAll('.delete-comment-btn');
+    
 
     blogCommentButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -21,12 +23,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
         });
     });
 
-    deleteCommentButtons.forEach(button => {
+    /*deleteCommentButtons.forEach(button => {
         button.addEventListener('click', function() {
             let formId = this.getAttribute('data-form-id');
             deleteComment(event, formId);
         });
-    });
+    });*/
 
     likeButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -37,17 +39,32 @@ document.addEventListener('DOMContentLoaded', (event) => {
         });
     });
 
-    
-
     commentButtons.forEach(button => {
         button.addEventListener('click', function() {
             const form = this.closest('form');
             postComment(form);
         });
     });
+
+    likeCommentButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.getAttribute('data-comment-id');
+            toggleCommentLike(commentId, this);
+        });
+    });
+
+    deleteCommentButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const commentId = this.getAttribute('data-comment-id');
+            deleteCommentAlert(commentId, this);
+        });
+    });
+
+    
+
 });
 
-
+// Toggle comment section
 function toggleCommentSection(postId) {
     var commentSection = document.getElementById('comment-section-' + postId);
     if (commentSection.style.display === 'none' || commentSection.style.display === '') {
@@ -77,9 +94,7 @@ function deletePost(event, formId) {
 }
 
 // Delete a comment
-function deleteComment(event, formId) {
-    console.log(formId)
-    event.preventDefault();
+function deleteCommentAlert(commentId, buttonElement) {
     Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -91,11 +106,11 @@ function deleteComment(event, formId) {
         cancelButtonText: 'No, cancel!'
     }).then((result) => {
         if (result.isConfirmed) {
-            console.log(document.getElementById(formId));
-            document.getElementById(formId).submit();
+            deleteComment(commentId, buttonElement);
         }
     });
 }
+
 
 // AJAX call for liking a post
 function toggleLike(postId, subpageSlug, postSlug, buttonElement) {
@@ -157,6 +172,54 @@ function postComment(form) {
             const commentSection = document.querySelector('.comment-section');
             commentSection.insertAdjacentHTML('beforeend', data.commentHtml);
             }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// AJAX call for liking a comment
+function toggleCommentLike(commentId, buttonElement) {
+    fetch(`/comments/${commentId}/toggle-like`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        buttonElement.textContent = `${data.likesCount} Like`;
+        buttonElement.classList.toggle('liked');
+        buttonElement.classList.toggle('not-liked');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+//AJAX call for deleting a comment
+function deleteComment(commentId, buttonElement) {
+    fetch(`/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            buttonElement.closest('.c').remove(); // Adjust the selector as needed
+        }
     })
     .catch(error => {
         console.error('Error:', error);

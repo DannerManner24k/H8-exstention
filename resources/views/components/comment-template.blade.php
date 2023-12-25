@@ -8,22 +8,22 @@
         <span class="c-span c-2">{{ $createdAt }}</span>
     </div>
     <div class="b-2">
-        <form method="POST" action="{{ route('comments.like.toggle', $comment->id) }}">
+        <form>
             @csrf
-            <x-secondary-button type="submit" class="button-space {{ $comment->isLikedByUser(Auth::user()) ? 'liked' : 'not-liked' }}">
-                {{ $comment->likes->count() }} {{__('Like') }}
+            <x-secondary-button type="button" 
+                    class="like-comment-button button-space {{ $comment->isLikedByUser(Auth::user()) ? 'liked' : 'not-liked' }}"
+                    data-comment-id="{{ $comment->id }}">
+                {{ $comment->likes->count() }} {{ __('Like') }}
             </x-secondary-button>
-            
         </form>
-
+        
         @if (auth()->check() && auth()->id() === $comment->user_id)
-            <form method="POST" action="{{ route('comments.destroy', $comment->id) }}" id="delete-comment-form-{{ $comment->id }}">
-                @csrf
-                @method('DELETE')
-                <x-danger-button class="button-space red delete-comment-btn" type="button" data-form-id="delete-comment-form-{{ $comment->id }}">
-                    {{ __('Delete') }}
-                </x-danger-button>
-            </form>
+            <x-danger-button type="button" 
+                    class="button-space red delete-comment-btn"
+                    data-comment-id="{{ $comment->id }}">
+                {{ __('Delete') }}
+            </x-danger-button>
         @endif
+
     </div>
 </div>

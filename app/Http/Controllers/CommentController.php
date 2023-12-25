@@ -55,8 +55,15 @@ class CommentController extends Controller
             $comment->likes()->attach(auth()->id());
         }
 
-        return back();
+        // Calculate the updated likes count
+        $updatedLikesCount = $comment->likes()->count();
+
+        // Return the updated likes count as JSON
+        return response()->json([
+            'likesCount' => $updatedLikesCount
+        ]);
     }
+
 
     public function destroy(Comment $comment)
     {
@@ -66,7 +73,8 @@ class CommentController extends Controller
         
         $comment->delete();
 
-        return back()->with('status', 'Comment deleted successfully.');
+        return response()->json(['status' => 'success', 'message' => 'Comment deleted successfully.']);
     }
+
 }
 

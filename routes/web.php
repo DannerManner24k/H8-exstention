@@ -77,10 +77,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/subpage/{slug}/post/{postSlug}/comment', [CommentController::class, 'store'])->name('posts.comments.store'); // comment a post - working
 
     // Toggle like for a comment
-    Route::post('/{comment}/toggleLike', [CommentController::class, 'toggleLike'])->name('comments.like.toggle'); // toggle like for a comment - working
+    Route::post('/comments/{comment}/toggle-like', [CommentController::class, 'toggleLike'])->name('comments.like.toggle'); // toggle like for a comment - working
+
 
     // Delete comment
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+    
 
 
 });
