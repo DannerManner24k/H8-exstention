@@ -47,14 +47,11 @@ class PostController extends Controller
      
          $post->save();
      
-         // Convert created_at to a Carbon instance and then to a human-readable format
-         $createdAtHumanReadable = Carbon::parse($post->created_at)->diffForHumans();
-     
          $postHtml = view('components.blog-template', [
                 'profileName' => Auth::user()->name,
                 'title' => $post->title,
                 'content' => $post->content,
-                'createdAt' => $createdAtHumanReadable,
+                'createdAt' => Carbon::parse($post->created_at),
                 'post' => $post,
                 'showSubpageName' => true, 
                 'subpageName' => $post->subpage->name,
