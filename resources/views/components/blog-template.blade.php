@@ -55,8 +55,6 @@
                 </x-danger-button>
             </form>
         @endif
-
-
     </div>
 
     <!-- Hidden Comment Section -->

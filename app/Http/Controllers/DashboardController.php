@@ -9,10 +9,15 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Fetch all posts and their comments and the user who posted the comment
-        $posts = Post::with(['comments.user', 'user'])->latest()->get();
+    // Get the currently authenticated user
+    $user = auth()->user();
 
-        // Pass the posts to the dashboard view
-        return view('dashboard', compact('posts'));
+    // Retrieve all posts from subpages to which the user is subscribed
+    $posts = Post::whereHas('subpage.subscribers', function ($query) use ($user) {
+        $query->where('user_id', $user->id);
+    })->latest()->get(); // 'latest()' will order the posts by creation date, newest first
+
+    // Pass the posts to the view
+    return view('dashboard', compact('posts'));
     }
 }
